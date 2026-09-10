@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Timeline — Sundial{% endblock %}
+{% block body_class %}{% if mode == "PLAIN_LARGE" %}plain-large{% endif %}{% endblock %}
+{% block content %}
+<div class="crumbs"><a href="/">Open</a> / <a href="/case">Case</a> / Timeline</div>
+
+<h1>Timeline</h1>
+<p class="muted">{{ result.observed_count }} observed{% if result.inferred_count %},
+{{ result.inferred_count }} inferred{% endif %} ·
+shown in each event's own timezone.</p>
+
+<div class="filters">
+  <form method="get" action="/timeline" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;width:100%;">
+    <input type="text" name="search" placeholder="Search summaries…" value="{{ search }}" style="max-width:280px;" />
+    <select name="category" style="max-width:200px;">
+      <option value="">All categories</option>
+      {% for cat, n in counts.items() %}
+      <option value="{{ cat }}" {% if cat == category %}selected{% endif %}>{{ cat }} ({{ n }})</option>
+      {% endfor %}
+    </select>
+    <input type="hidden" name="inferred" value="{{ inferred }}" />
+    <input type="hidden" name="mode" value="{{ mode }}" />
+    <button class="btn small" type="submit">Apply</button>
+  </form>
+
+  <div class="seg" role="group" aria-label="Inference toggle">
+    <a href="/timeline?category={{ category }}&search={{ search }}&inferred=0&mode={{ mode }}"
+       class="{% if not inferred %}on{% endif %}">Observed only</a>
+    <a href="/timeline?category={{ category }}&search={{ search }}&inferred=1&mode={{ mode }}"
+       class="{% if inferred %}on{% endif %}">+ Inferred</a>
+  </div>
+
+  <div class="seg" role="group" aria-label="Reading mode">
+    <a href="/timeline?category={{ category }}&search={{ search }}&inferred={{ inferred }}&mode=STANDARD"
+       class="{% if mode != 'PLAIN_LARGE' %}on{% endif %}">Standard</a>
+    <a href="/timeline?category={{ category }}&search={{ search }}&inferred={{ inferred }}&mode=PLAIN_LARGE"
+       class="{% if mode == 'PLAIN_LARGE' %}on{% endif %}">Large text</a>
+  </div>
+</div>
+
+{% for note in result.notes %}
+<div class="note"><span class="label">Note</span>{{ note }}</div>
+{% endfor %}
+
+{% if result.rows %}
+<div class="spine">
+  {% for ev in result.rows %}
+  <div class="ev {% if ev.is_inferred %}inferred{% else %}observed{% endif %}">
+    <div class="when">
+      {{ ev.timestamp_start }} <span class="muted">({{ ev.timezone_basis }})</span>
+      <span class="tag">{% if ev.is_inferred %}Inferred{% else %}Observed{% endif %}</span>
+    </div>
+    <div class="summary">
+      <a class="summary-link" href="/event/{{ ev.event_id }}">{{ ev.summary_plain or "(no summary)" }}</a>
+    </div>
+    <div class="meta">
+      {% if ev.category %}{{ ev.category }}{% endif %}
+      {% if ev.confidence is not none %} · confidence {{ "%.2f"|format(ev.confidence) }}{% endif %}
+      {% if ev.timestamp_quality %} · time {{ ev.timestamp_quality }}{% endif %}
+      {% if ev.source_count %} · {{ ev.source_count }} source(s){% endif %}
+    </div>
+    {% if ev.is_inferred and ev.confidence_reasons %}
+    <ul class="reasons">
+      {% for r in ev.confidence_reasons %}<li>{{ r }}</li>{% endfor %}
+    </ul>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="note"><span class="label">Nothing to show</span>
+No events match the current filters. Try clearing the search or category.</div>
+{% endif %}
+
+<div style="margin-top:24px;">
+  <a class="btn" href="/case">Back to case</a>
+  <a class="btn" href="/export">Export for court</a>
+</div>
+{% endblock %}

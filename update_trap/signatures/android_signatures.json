@@ -1,0 +1,32 @@
+{
+  "android": [
+    {
+      "id": "A14_MULTI_PROFILE_DB_RELOCATION",
+      "os_range": "Android 14.x",
+      "observed_patterns": [
+        "path moved from /data/data/ to /data/user/<n>/",
+        "duplicate databases per user profile"
+      ],
+      "affected_artifacts": [
+        "msgstore.db",
+        "mmssms.db",
+        "contacts2.db"
+      ],
+      "confidence": "historical",
+      "notes": "Seen in Pixel and Samsung devices post-Android 14 rollout."
+    },
+    {
+      "id": "SCOPED_STORAGE_MEDIA_SPLIT",
+      "os_range": "Android 11+",
+      "observed_patterns": [
+        "media indexes split by app sandbox",
+        "loss of global media.db"
+      ],
+      "affected_artifacts": [
+        "media.db"
+      ],
+      "confidence": "high",
+      "notes": "Scoped storage enforcement."
+    }
+  ]
+}

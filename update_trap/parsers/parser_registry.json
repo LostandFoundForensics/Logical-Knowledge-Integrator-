@@ -1,0 +1,23 @@
+{
+  "OpenRecord.Android.Messages": {
+    "depends_on": {
+      "paths": ["**/mmssms.db"],
+      "tables": ["sms", "mms"],
+      "structured_keys": []
+    }
+  },
+  "OpenRecord.Android.Contacts": {
+    "depends_on": {
+      "paths": ["**/contacts2.db"],
+      "tables": ["contacts", "raw_contacts"],
+      "structured_keys": []
+    }
+  },
+  "EchoReader.iOS.Messages": {
+    "depends_on": {
+      "paths": ["**/sms.db"],
+      "tables": ["message"],
+      "structured_keys": ["root.messages[]"]
+    }
+  }
+}

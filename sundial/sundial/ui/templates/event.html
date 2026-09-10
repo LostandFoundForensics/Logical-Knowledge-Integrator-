@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Event — Sundial{% endblock %}
+{% block content %}
+<div class="crumbs"><a href="/">Open</a> / <a href="/case">Case</a> / <a href="/timeline">Timeline</a> / Event</div>
+
+{% if not detail %}
+<h1>Event not found</h1>
+<div class="note warn"><span class="label">Note</span>
+No event with id <span class="mono">{{ event_id }}</span> exists in this case.</div>
+<a class="btn" href="/timeline">Back to timeline</a>
+{% else %}
+
+<h1>{{ detail.summary_plain or "Event" }}</h1>
+<p class="muted">
+  {% if detail.is_inferred %}INFERRED — a reasoned estimate, not a direct recording.
+  {% else %}OBSERVED — directly recorded.{% endif %}
+</p>
+
+{% if detail.is_inferred %}
+<h2>Why this was inferred</h2>
+<dl class="kv">
+  <dt>Estimated time</dt><dd>{{ detail.timestamp_estimated }}</dd>
+  <dt>Range</dt><dd>{{ detail.timestamp_range_start }} → {{ detail.timestamp_range_end }}</dd>
+  <dt>Confidence</dt><dd>{{ detail.confidence }} ({{ detail.confidence_level }})</dd>
+</dl>
+{% if detail.confidence_reasons %}
+<ul class="reasons">
+  {% for r in detail.confidence_reasons %}<li>{{ r }}</li>{% endfor %}
+</ul>
+{% endif %}
+
+{% else %}
+<h2>What was recorded</h2>
+<dl class="kv">
+  <dt>Time</dt><dd>{{ detail.timestamp_start }} ({{ detail.timezone_basis }})</dd>
+  {% if detail.timestamp_end %}<dt>End</dt><dd>{{ detail.timestamp_end }}</dd>{% endif %}
+  <dt>Time quality</dt><dd>{{ detail.timestamp_quality or "—" }}</dd>
+  <dt>Category</dt><dd>{{ detail.category or "—" }}</dd>
+  <dt>Confidence</dt><dd>{{ detail.confidence if detail.confidence is not none else "—" }}</dd>
+</dl>
+
+{% if detail.summary_technical %}
+<h2>Technical summary</h2>
+<p class="mono">{{ detail.summary_technical }}</p>
+{% endif %}
+
+<h2>Where it came from</h2>
+{% if detail.sources %}
+{% for s in detail.sources %}
+<dl class="kv">
+  <dt>Source</dt><dd>{{ s.source_path }}</dd>
+  <dt>Type</dt><dd>{{ s.source_type }}{% if s.table_name %} · {{ s.table_name }}{% endif %}</dd>
+  <dt>Record</dt><dd>{{ s.record_id or "—" }}</dd>
+  <dt>Parser</dt><dd>{{ s.parser_name }} {{ s.parser_version }}</dd>
+</dl>
+{% endfor %}
+{% else %}
+<p class="muted">No source records are attached to this event.</p>
+{% endif %}
+
+{% if detail.conflicts %}
+<h2>Disagreements between sources</h2>
+{% for c in detail.conflicts %}
+<div class="conflict">
+  <div class="mono">{{ c.conflict_type }} · {{ c.field_name }} · severity {{ c.severity }}</div>
+  <dl class="kv" style="margin-top:6px;">
+    <dt>Value A</dt><dd>{{ c.a_value }}</dd>
+    <dt>Value B</dt><dd>{{ c.b_value }}</dd>
+  </dl>
+  {% if c.note_plain %}<p class="muted">{{ c.note_plain }}</p>{% endif %}
+</div>
+{% endfor %}
+{% endif %}
+
+{% if detail.hash_refs %}
+<h2>Hashes</h2>
+{% for h in detail.hash_refs %}
+<p class="mono">{{ h.hash_type }}: {{ h.hash_value }}</p>
+{% endfor %}
+{% endif %}
+
+{% if detail.links %}
+<h2>Related events</h2>
+{% for l in detail.links %}
+<p class="mono">{{ l.link_type }} → {{ l.event_id_b if l.event_id_a == event_id else l.event_id_a }}
+{% if l.link_reason %}<span class="muted"> ({{ l.link_reason }})</span>{% endif %}</p>
+{% endfor %}
+{% endif %}
+{% endif %}
+
+<div style="margin-top:24px;">
+  <a class="btn" href="/timeline">Back to timeline</a>
+</div>
+{% endif %}
+{% endblock %}

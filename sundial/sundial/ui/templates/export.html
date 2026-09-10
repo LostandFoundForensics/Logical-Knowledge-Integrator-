@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Export — Sundial{% endblock %}
+{% block content %}
+<div class="crumbs"><a href="/">Open</a> / <a href="/case">Case</a> / Export</div>
+
+<h1>Export for court</h1>
+<p class="lead">This compiles the timeline you've reviewed into a verifiable bundle.
+No new analysis runs. Every file is hashed so anyone can confirm it wasn't changed.</p>
+
+{% if done %}
+<div class="note">
+  <span class="label">Export complete</span>
+  Saved to <span class="mono">{{ out }}</span>.
+  Open <span class="mono">hash_manifest.txt</span> to verify the files.
+</div>
+{% endif %}
+
+<form method="post" action="/export/run">
+  <h2>What to include</h2>
+  <div class="checks">
+    <label><input type="checkbox" name="include_pdf" value="1" checked /> Report.pdf — plain-language timeline report</label>
+    <label><input type="checkbox" name="include_csv" value="1" checked /> timeline.csv — spreadsheet of events</label>
+    <label><input type="checkbox" name="include_jsonl" value="1" checked /> timeline.jsonl — machine-readable events</label>
+    <label><input type="checkbox" name="include_provenance" value="1" checked /> provenance.csv — source of each event</label>
+  </div>
+
+  <h2>Scope</h2>
+  <div class="checks">
+    <label><input type="checkbox" name="include_inferred" value="1" /> Include inferred events (clearly labeled). Off = observed only.</label>
+  </div>
+
+  <h2>Redaction</h2>
+  <div class="checks">
+    <label><input type="checkbox" name="mask_numbers" value="1" checked /> Mask phone numbers and emails</label>
+    <label><input type="checkbox" name="hide_contents" value="1" /> Hide message contents (keep structure only)</label>
+  </div>
+  <p class="muted">A redaction ledger is always included. It proves what was redacted
+  using hashes, without revealing the original values.</p>
+
+  <h2>Report style</h2>
+  <label class="field" for="reading_mode">Reading mode</label>
+  <select id="reading_mode" name="reading_mode" style="max-width:260px;">
+    <option value="STANDARD">Standard</option>
+    <option value="PLAIN_LARGE">Plain &amp; large (for non-technical readers)</option>
+  </select>
+
+  <div style="margin-top:22px;">
+    <button class="btn" type="submit">Build export</button>
+    <a class="btn" href="/case">Cancel</a>
+  </div>
+</form>
+{% endblock %}

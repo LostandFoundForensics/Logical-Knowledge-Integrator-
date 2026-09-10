@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}{{ case.case_name if case else "Case" }} — Sundial{% endblock %}
+{% block content %}
+<div class="crumbs"><a href="/">Open</a> / Case</div>
+
+{% if case %}
+<h1>{{ case.case_name }}</h1>
+<p class="muted mono">{{ case.case_id }}</p>
+<dl class="kv">
+  <dt>Owner</dt><dd>{{ case.owner_label or "—" }}</dd>
+  <dt>Device</dt><dd>{{ case.device_label or "—" }}</dd>
+  <dt>Created</dt><dd>{{ case.created_utc or "—" }}</dd>
+</dl>
+{% if case.notes %}<p>{{ case.notes }}</p>{% endif %}
+{% else %}
+<h1>Case</h1>
+<div class="note warn"><span class="label">Note</span>
+This bundle has no readable <span class="mono">case.json</span>.</div>
+{% endif %}
+
+{% if status and status.missing %}
+<div class="note warn">
+  <span class="label">What's missing</span>
+  {% for m in status.missing %}<div class="mono">{{ m }}</div>{% endfor %}
+  {% for n in status.notes %}<p class="muted" style="margin-top:6px;">{{ n }}</p>{% endfor %}
+</div>
+{% endif %}
+
+{% if status and status.db_present %}
+<h2>What's in the timeline</h2>
+<div class="tiles">
+  {% for cat, n in counts.items() %}
+  <div class="tile"><div class="n">{{ n }}</div><div class="l">{{ cat }}</div></div>
+  {% endfor %}
+  {% if not counts %}
+  <div class="note"><span class="label">Empty</span>The database has no events yet.</div>
+  {% endif %}
+</div>
+
+<div style="margin-top:18px;display:flex;gap:12px;flex-wrap:wrap;">
+  <a class="btn" href="/timeline">Read the timeline</a>
+  <a class="btn" href="/export">Export for court</a>
+</div>
+{% else %}
+<div class="note"><span class="label">No timeline</span>
+There is no normalized database in this bundle, so there is nothing to read yet.
+You can still see the case details above.</div>
+{% endif %}
+{% endblock %}

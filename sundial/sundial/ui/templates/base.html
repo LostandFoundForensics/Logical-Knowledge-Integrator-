@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/static/sundial.css" />
+  <title>{% block title %}Sundial{% endblock %}</title>
+</head>
+<body class="{% block body_class %}{% endblock %}">
+  <div class="wrap">
+    <div class="mast">
+      <span class="logo">Sundial</span>
+      <span class="kicker">LoKi · Timeline Reader</span>
+    </div>
+    {% block content %}{% endblock %}
+  </div>
+</body>
+</html>

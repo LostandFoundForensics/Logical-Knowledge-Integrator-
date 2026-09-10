@@ -1,0 +1,128 @@
+/* Sundial — black & white reader.
+   Signature: a single vertical rule down the left of the timeline that the
+   events hang from, like a sundial's gnomon casting marks. Observed vs
+   inferred is carried by weight and a hollow/filled node, never by color. */
+
+:root{
+  --bg:#ffffff;
+  --ink:#000000;
+  --rule:#000000;
+  --soft:#5b5b5b;
+  --hair:#cfcfcf;
+  --shade:#f3f3f3;
+  --maxw:1000px;
+}
+
+*{box-sizing:border-box;}
+
+html,body{
+  margin:0;padding:0;background:var(--bg);color:var(--ink);
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  font-size:17px;line-height:1.5;
+}
+
+.wrap{max-width:var(--maxw);margin:0 auto;padding:32px 22px 96px;}
+
+/* Masthead — the only display type in the app */
+.mast{display:flex;align-items:baseline;gap:14px;border-bottom:3px solid var(--rule);
+  padding-bottom:14px;margin-bottom:8px;}
+.mast .logo{font-weight:800;letter-spacing:-0.5px;font-size:30px;}
+.mast .kicker{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--soft);}
+
+.crumbs{font-family:ui-monospace,monospace;font-size:11px;letter-spacing:1px;
+  text-transform:uppercase;color:var(--soft);margin:14px 0 26px;}
+.crumbs a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--ink);}
+
+h1{font-size:26px;font-weight:800;margin:0 0 6px;letter-spacing:-0.3px;}
+h2{font-size:15px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  margin:30px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--ink);}
+p{margin:0 0 12px;}
+.lead{font-size:18px;color:var(--ink);}
+.muted{color:var(--soft);}
+.mono{font-family:ui-monospace,monospace;font-size:13px;}
+
+/* Buttons & inputs — square, inked, no radius */
+.btn{display:inline-block;border:2px solid var(--ink);background:var(--bg);
+  color:var(--ink);padding:11px 18px;font-weight:700;cursor:pointer;
+  text-decoration:none;font-family:inherit;font-size:15px;}
+.btn:hover{background:var(--ink);color:var(--bg);}
+.btn.small{padding:6px 12px;font-size:13px;}
+input[type=text],select{width:100%;padding:11px;border:2px solid var(--ink);
+  background:var(--bg);color:var(--ink);font-family:inherit;font-size:16px;}
+label.field{display:block;font-size:12px;letter-spacing:1px;text-transform:uppercase;
+  color:var(--soft);margin:14px 0 6px;font-weight:700;}
+
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;}
+.row > *{flex:1;min-width:160px;}
+
+/* Status / notice blocks */
+.note{border:1px solid var(--ink);padding:12px 14px;margin:12px 0;}
+.note.warn{background:var(--shade);}
+.note .label{font-size:11px;letter-spacing:2px;text-transform:uppercase;
+  color:var(--soft);font-weight:700;display:block;margin-bottom:4px;}
+
+/* Overview tiles */
+.tiles{display:flex;gap:14px;flex-wrap:wrap;margin:6px 0 18px;}
+.tile{border:2px solid var(--ink);padding:14px 18px;min-width:130px;}
+.tile .n{font-size:30px;font-weight:800;font-family:ui-monospace,monospace;}
+.tile .l{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--soft);}
+
+/* ── The timeline spine: the signature element ── */
+.spine{position:relative;margin-top:8px;padding-left:28px;}
+.spine:before{content:"";position:absolute;left:7px;top:4px;bottom:4px;
+  width:2px;background:var(--rule);}
+
+.ev{position:relative;padding:14px 0 16px 8px;border-bottom:1px solid var(--hair);}
+.ev:before{content:"";position:absolute;left:-25px;top:20px;width:11px;height:11px;
+  background:var(--bg);border:2px solid var(--ink);border-radius:50%;}
+/* Observed = filled node, Inferred = hollow node + italic */
+.ev.observed:before{background:var(--ink);}
+.ev.inferred:before{background:var(--bg);}
+.ev.inferred .summary{font-style:italic;}
+
+.ev .when{font-family:ui-monospace,monospace;font-size:12px;color:var(--soft);
+  letter-spacing:0.5px;}
+.ev .tag{font-family:ui-monospace,monospace;font-size:10px;letter-spacing:1.5px;
+  border:1px solid var(--ink);padding:1px 6px;margin-left:8px;text-transform:uppercase;}
+.ev.inferred .tag{border-style:dashed;}
+.ev .summary{font-size:18px;margin:5px 0 4px;}
+.ev a.summary-link{color:var(--ink);text-decoration:none;}
+.ev a.summary-link:hover{border-bottom:1px solid var(--ink);}
+.ev .meta{font-size:12px;color:var(--soft);font-family:ui-monospace,monospace;}
+.ev .reasons{margin:6px 0 0 0;padding:0;list-style:none;}
+.ev .reasons li{font-size:13px;color:var(--soft);padding-left:14px;position:relative;}
+.ev .reasons li:before{content:"\2013";position:absolute;left:0;}
+
+/* Filters bar */
+.filters{display:flex;gap:10px;flex-wrap:wrap;align-items:center;
+  border:1px solid var(--ink);padding:12px;margin:10px 0 20px;}
+.filters .seg{display:flex;gap:0;border:1px solid var(--ink);}
+.filters .seg a{padding:6px 12px;text-decoration:none;color:var(--ink);font-size:13px;
+  border-right:1px solid var(--ink);}
+.filters .seg a:last-child{border-right:none;}
+.filters .seg a.on{background:var(--ink);color:var(--bg);}
+
+/* Detail / proof view */
+.kv{display:grid;grid-template-columns:200px 1fr;gap:6px 14px;margin:8px 0;}
+.kv dt{font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--soft);font-weight:700;}
+.kv dd{margin:0;font-family:ui-monospace,monospace;font-size:13px;word-break:break-word;}
+.conflict{border:2px solid var(--ink);padding:10px 12px;margin:8px 0;background:var(--shade);}
+pre{white-space:pre-wrap;font-family:ui-monospace,monospace;font-size:12px;
+  border:1px solid var(--hair);padding:10px;overflow:auto;}
+
+/* Reading mode: PLAIN_LARGE */
+body.plain-large{font-size:20px;line-height:1.65;}
+body.plain-large .ev .summary{font-size:22px;}
+body.plain-large .btn{font-size:17px;padding:13px 22px;}
+
+/* Checkboxes list */
+.checks label{display:flex;gap:10px;align-items:flex-start;margin:10px 0;font-size:16px;}
+.checks input{margin-top:4px;}
+
+:focus-visible{outline:3px solid var(--ink);outline-offset:2px;}
+@media (max-width:640px){
+  .kv{grid-template-columns:1fr;}
+  .mast .logo{font-size:24px;}
+}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;}}

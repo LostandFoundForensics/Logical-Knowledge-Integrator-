@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Sundial — Open a case{% endblock %}
+{% block content %}
+<div class="crumbs">Open</div>
+
+<h1>Read a case timeline</h1>
+<p class="lead">Point Sundial at a case bundle. It opens whatever is there and shows
+you what was found in time order. Nothing is changed.</p>
+
+{% if request.query_params.get('err') == 'nocase' %}
+<div class="note warn">
+  <span class="label">Couldn't open</span>
+  That folder has no <span class="mono">case.json</span>. Choose a folder that contains a case bundle.
+</div>
+{% endif %}
+
+<form method="post" action="/open">
+  <label class="field" for="bundle_dir">Case bundle folder</label>
+  <input type="text" id="bundle_dir" name="bundle_dir"
+         placeholder="/path/to/CaseBundle"
+         value="{{ bundle_dir }}" required />
+  <div style="margin-top:16px;">
+    <button class="btn" type="submit">Open case</button>
+  </div>
+</form>
+
+<h2>What Sundial shows</h2>
+<p>Events that were <b>observed</b> — directly recorded on the device — are shown by
+default. Reasoned estimates are kept separate and labeled <b>inferred</b>; you turn
+them on only when you want them. Every event traces back to its source.</p>
+{% endblock %}

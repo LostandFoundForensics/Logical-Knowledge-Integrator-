@@ -1,0 +1,5 @@
+# Update Trap — Phase 1, 2, and 3 are all standard-library only.
+# Tkinter ships with most Python installs; on some Linux distros it's a
+# separate system package (e.g. `apt install python3-tk`).
+#
+# No third-party dependencies required.
