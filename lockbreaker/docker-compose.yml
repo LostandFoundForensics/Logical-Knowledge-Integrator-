@@ -1,0 +1,85 @@
+version: "3.9"
+
+# LockBreaker — Mobile Credential Recovery System
+# Authorized use only. All actions logged and signed.
+
+services:
+
+  lockbreaker-api:
+    build:
+      context: ./api
+    image: loki/lockbreaker-api:1.0
+    container_name: lockbreaker-api
+    environment:
+      - LOCKBREAKER_DATA=/data
+      - LOCKBREAKER_EVIDENCE_ROOT=/evidence
+      - LOCKBREAKER_ARTIFACTS_ROOT=/artifacts
+      # Set this in production — never commit the real key
+      - LOCKBREAKER_SIGNING_KEY_HEX=${LOCKBREAKER_SIGNING_KEY_HEX:-}
+      - LOCKBREAKER_ENABLE_REAL_BACKENDS=${LOCKBREAKER_ENABLE_REAL_BACKENDS:-0}
+    volumes:
+      - ./data:/data
+      - ./evidence:/evidence:ro
+      - ./artifacts:/artifacts
+      - ./doctrine:/app/doctrine:ro
+    ports:
+      - "8100:8000"
+    command: ["uvicorn", "lockbreaker_api.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "2"]
+    networks:
+      - lockbreaker-internal
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/profiles"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  lockbreaker-runner:
+    build:
+      context: ./runner
+    image: loki/lockbreaker-runner:1.0
+    container_name: lockbreaker-runner
+    environment:
+      - LOCKBREAKER_WORKER_IMAGE=loki/lockbreaker-worker:1.0
+      - LOCKBREAKER_ENABLE_REAL_BACKENDS=${LOCKBREAKER_ENABLE_REAL_BACKENDS:-0}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock  # runner launches worker containers
+      - ./evidence:/evidence:ro
+      - ./artifacts:/artifacts
+    ports:
+      - "9100:9000"
+    command: ["uvicorn", "lockbreaker_runner.main:app", "--host", "0.0.0.0", "--port", "9000"]
+    networks:
+      - lockbreaker-internal
+    restart: unless-stopped
+
+  lockbreaker-ui:
+    build:
+      context: ./ui
+    image: loki/lockbreaker-ui:1.0
+    container_name: lockbreaker-ui
+    environment:
+      - VITE_LOCKBREAKER_API_BASE=http://localhost:8100
+      - VITE_LOCKBREAKER_RUNNER_BASE=http://localhost:9100
+    ports:
+      - "5200:5173"
+    command: ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "5173"]
+    networks:
+      - lockbreaker-internal
+    restart: unless-stopped
+
+  # GPU Worker — deployed separately in GPU-enabled environments
+  # lockbreaker-worker-gpu:
+  #   image: loki/lockbreaker-worker:1.0-cuda
+  #   runtime: nvidia
+  #   environment:
+  #     - LOCKBREAKER_ENABLE_REAL_BACKENDS=1
+  #     - NVIDIA_VISIBLE_DEVICES=all
+  #   volumes:
+  #     - /opt/lockbreaker/wordlists:/opt/lockbreaker/wordlists:ro
+  #     - /opt/lockbreaker/rulesets:/opt/lockbreaker/rulesets:ro
+
+networks:
+  lockbreaker-internal:
+    driver: bridge
+    internal: false  # set true to isolate from internet in production
